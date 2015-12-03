@@ -143,10 +143,15 @@ class Command(NoArgsCommand):
                     'get_template_sources', None)
                 if get_template_sources is None:
                     get_template_sources = loader.get_template_sources
-                paths.update(list(get_template_sources('')))
+                results = get_template_sources('')
             except (ImportError, AttributeError, TypeError):
                 # Yeah, this didn't work out so well, let's move on
                 pass
+            else:
+                if django.VERSION < (1, 9):
+                    paths.update(list(results))
+                else:
+                    paths.update([x.name for x in results])
         if not paths:
             raise OfflineGenerationError("No template paths found. None of "
                                          "the configured template loaders "
